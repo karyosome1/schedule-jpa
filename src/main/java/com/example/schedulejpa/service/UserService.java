@@ -1,0 +1,65 @@
+package com.example.schedulejpa.service;
+
+import com.example.schedulejpa.dto.UserRequestDto;
+import com.example.schedulejpa.dto.UserResponseDto;
+import com.example.schedulejpa.entity.User;
+import com.example.schedulejpa.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepository;
+
+    @Transactional
+    public UserResponseDto save(UserRequestDto dto) {
+        User user = new User(dto.getUsername(), dto.getEmail());
+        User savedUser = userRepository.save(user);
+
+        return new UserResponseDto(savedUser.getId(), savedUser.getUsername(), dto.getEmail());
+
+    }
+    @Transactional(readOnly = true)
+    public List<UserResponseDto> findAll() {
+        List<User> users = userRepository.findAll();
+        List<UserResponseDto> dtos = new ArrayList<>();
+        for (User user : users) {
+            UserResponseDto dto = new UserResponseDto(user.getId(), user.getUsername(), user.getEmail());
+            dtos.add(dto);
+        }
+        return dtos;
+
+    }
+    @Transactional(readOnly = true)
+    public UserResponseDto findById(Long id) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("없음")
+        );
+        return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail());
+    }
+
+    @Transactional
+    public UserResponseDto update(Long id, UserRequestDto dto) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("없음")
+        );
+
+        user.update(dto.getUsername(), dto.getEmail());
+        return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail());
+
+    }
+
+    @Transactional
+    public void deleteById(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new IllegalArgumentException("없음");
+        }
+        userRepository.deleteById(id);
+    }
+}
