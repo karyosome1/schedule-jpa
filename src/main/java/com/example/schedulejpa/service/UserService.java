@@ -3,6 +3,7 @@ package com.example.schedulejpa.service;
 import com.example.schedulejpa.dto.UserRequestDto;
 import com.example.schedulejpa.dto.UserResponseDto;
 import com.example.schedulejpa.entity.User;
+import com.example.schedulejpa.repository.ScheduleRepository;
 import com.example.schedulejpa.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ScheduleRepository scheduleRepository;
 
     @Transactional
     public UserResponseDto save(UserRequestDto dto) {
@@ -57,9 +59,12 @@ public class UserService {
 
     @Transactional
     public void deleteById(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new IllegalArgumentException("없음");
-        }
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+
+        scheduleRepository.deleteByUserId(user.getId()); // 해당 사용자의 일정 삭제
+        userRepository.deleteById(id);                   // 사용자 삭제
     }
+
+
 }
