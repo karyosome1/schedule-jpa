@@ -2,8 +2,13 @@ package com.example.schedulejpa.controller;
 
 import com.example.schedulejpa.dto.UserRequestDto;
 import com.example.schedulejpa.dto.UserResponseDto;
+import com.example.schedulejpa.entity.User;
 import com.example.schedulejpa.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,29 +19,46 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/users")
-    public UserResponseDto save(@RequestBody UserRequestDto dto) {
-        return userService.save(dto);
+    // 회원가입
+    @PostMapping("/users/signup")
+    public ResponseEntity<?> signUp(@RequestBody UserRequestDto dto) {
+        return ResponseEntity.ok(userService.signUp(dto));
     }
 
+    // 사용자 전체 조회
     @GetMapping("/users")
     public List<UserResponseDto> findAll() {
         return userService.findAll();
     }
 
+    // 사용자 1명 조회
     @GetMapping("/users/{id}")
     public UserResponseDto findOne(@PathVariable Long id) {
         return userService.findById(id);
     }
 
+    // 사용자 수정
     @PutMapping("/users/{id}")
     public UserResponseDto update(@PathVariable Long id, @RequestBody UserRequestDto dto) {
         return userService.update(id, dto);
     }
 
+    // 사용자 삭제
     @DeleteMapping("/users/{id}")
     public void delete(@PathVariable Long id) {
         userService.deleteById(id);
+    }
 
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody UserRequestDto dto, HttpServletRequest request) {
+        return userService.login(dto.getEmail(), dto.getPassword(), request);
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        return userService.logout(request);
     }
 }
+
