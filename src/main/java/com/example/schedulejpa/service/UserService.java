@@ -21,10 +21,10 @@ public class UserService {
 
     @Transactional
     public UserResponseDto save(UserRequestDto dto) {
-        User user = new User(dto.getUsername(), dto.getEmail());
+        User user = new User(dto.getUsername(), dto.getEmail(), dto.getPassword());
         User savedUser = userRepository.save(user);
 
-        return new UserResponseDto(savedUser.getId(), savedUser.getUsername(), dto.getEmail());
+        return new UserResponseDto(savedUser.getId(), savedUser.getUsername(), dto.getEmail(), dto.getPassword());
 
     }
     @Transactional(readOnly = true)
@@ -32,7 +32,7 @@ public class UserService {
         List<User> users = userRepository.findAll();
         List<UserResponseDto> dtos = new ArrayList<>();
         for (User user : users) {
-            UserResponseDto dto = new UserResponseDto(user.getId(), user.getUsername(), user.getEmail());
+            UserResponseDto dto = new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getPassword());
             dtos.add(dto);
         }
         return dtos;
@@ -43,7 +43,7 @@ public class UserService {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("없음")
         );
-        return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail());
+        return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getPassword());
     }
 
     @Transactional
@@ -52,8 +52,8 @@ public class UserService {
                 () -> new IllegalArgumentException("없음")
         );
 
-        user.update(dto.getUsername(), dto.getEmail());
-        return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail());
+        user.update(dto.getUsername(), dto.getEmail(), dto.getPassword());
+        return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getPassword());
 
     }
 
