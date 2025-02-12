@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,11 +31,10 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         return new UserResponseDto(savedUser.getId(), savedUser.getUsername(), dto.getEmail(), dto.getPassword());
-
     }
 
     // 로그인
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<String> login(String email, String password, HttpServletRequest request) {
         return userRepository.findByEmailAndPassword(email, password)
                 .map(user -> {
@@ -46,6 +46,7 @@ public class UserService {
     }
 
     // 로그아웃
+    @Transactional
     public ResponseEntity<String> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
@@ -69,14 +70,19 @@ public class UserService {
 
     }
 
-    // 사용자 단건 조회
+    // 사용자 1명 조회
     @Transactional(readOnly = true)
     public UserResponseDto findById(Long id) {
-        User user = userRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("없음")
-        );
-        return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getPassword());
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            return new UserResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getPassword());
+        } else {
+            throw new IllegalArgumentException("사용자를 찾을 수 없습니다.");
+        }
     }
+
 
     // 사용자 수정
     @Transactional
@@ -99,4 +105,6 @@ public class UserService {
         scheduleRepository.deleteByUserId(user.getId()); // 해당 사용자의 일정 삭제
         userRepository.deleteById(id);                   // 사용자 삭제
     }
+
 }
+
