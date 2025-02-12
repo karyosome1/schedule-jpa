@@ -22,8 +22,8 @@ public class ScheduleService {
 
     @Transactional
     public ScheduleResponseDto save(ScheduleRequestDto dto) {
-        User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+        User user = userRepository.findById(dto.getUserId()).orElseThrow(
+                () -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         Schedule schedule = new Schedule(user, dto.getTitle(), dto.getContent());
         Schedule savedSchedule = scheduleRepository.save(schedule);
@@ -43,18 +43,18 @@ public class ScheduleService {
 
     @Transactional(readOnly = true)
     public ScheduleResponseDto findById(Long id) {
-        Schedule schedule = scheduleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+        Schedule schedule = scheduleRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
         return new ScheduleResponseDto(schedule.getId(), schedule.getUser().getUsername(), schedule.getTitle(), schedule.getContent());
     }
 
     @Transactional
     public ScheduleResponseDto update(Long id, ScheduleRequestDto dto) {
-        Schedule schedule = scheduleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+        Schedule schedule = scheduleRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
 
-        User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
+        User user = userRepository.findById(dto.getUserId()).orElseThrow(
+                () -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
 
         schedule.update(user, dto.getTitle(), dto.getContent());
         return new ScheduleResponseDto(schedule.getId(), user.getUsername(), schedule.getTitle(), schedule.getContent());
